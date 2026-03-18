@@ -184,7 +184,7 @@ for i in iter_list:
 
     checkpoint_path = f"{working_dir}mlp_rope0_orig{original}_rb{rope_base}.pt"
     m0.load_state_dict(torch.load(checkpoint_path, map_location=device))
-    print(sum(p.numel() for p in m0.parameters())/1e6, 'M parameters')
+    # print(sum(p.numel() for p in m0.parameters())/1e6, 'M parameters')
 
     m0.transformer.h[0].attn.set_head_pi_mask([True, True])
     m0.transformer.h[0].attn.enable_headwise_pi()
