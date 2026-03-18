@@ -16,4 +16,4 @@ This Repo contains the code for "Sliding Critical Band in RoPE-based Length Extr
 
 ### Draw Figure 4 (Visializing Critical Band on different RoPE-base $\theta$)
 
-### Draw Figure 5 (Comparing Attention Pattern of Vanilla RoPE and Sliding Critical Band)
+### Draw Figure 5 (Comparing Attention Pattern of Vanilla RoPE and Interpolating Sliding Critical Band)
