@@ -235,27 +235,27 @@ if is_save:
     # ========================================================
     # 任务一：保存完整的原始数据 (和你上传的表格格式完全一致)
     # ========================================================
-    raw_csv_filename = f"raw_data_ppl_orig{original}_rb{rope_base}_all.csv"
-    raw_csv_path = os.path.join(working_dir, raw_csv_filename) # 如果你那边叫 result_dir 就改一下
+    suffix = "ub" if is_from else "lb"
+    raw_csv_filename = f"raw_ppl_orig{original}_rb{rope_base}_{suffix}.csv"
+    raw_csv_path = os.path.join(result_dir, raw_csv_filename) # 如果你那边叫 result_dir 就改一下
     
-    # 将字典转换为 DataFrame
-    df_raw = pd.DataFrame(dict([ (k, pd.Series(v)) for k, v in ppls.items() ]))
-    
-    # 在最左边（索引之后）插入一列 pct，方便你以后画图时做筛选
-    df_raw.insert(0, 'pct', pct)
-    
-    # 追加模式写入：第一轮跑的时候新建并带上表头，后面几轮直接在表格最下面追加
-    if not os.path.exists(raw_csv_path):
-        df_raw.to_csv(raw_csv_path, mode='w', header=True, index=True)
+    if os.path.exists(raw_csv_path):
+        df_raw = pd.read_csv(raw_csv_path, index_col=0)
     else:
-        df_raw.to_csv(raw_csv_path, mode='a', header=False, index=True)
+        df_raw = pd.DataFrame()
         
-    print(f"✅ pct={pct} 的原始数据已追加至: {raw_csv_filename}")
+    # 2. 将这次跑出来的结果（比如 key 是 110, 120），作为“新的一列”挂到右边
+    for k, v in ppls.items():
+        df_raw[str(k)] = pd.Series(v)
+        
+    # 3. 覆盖保存文件，带上左边的 0, 1, 2... 索引
+    df_raw.to_csv(raw_csv_path, index=True) 
+    print(f"✅ pct={pct} 的数据已作为【新列】加入到: {raw_csv_filename}")
 
     # ========================================================
     # 任务二：提取并追加最小值的位置(min_index)及具体数值(min_ppl)
     # ========================================================
-    min_csv_filename = f"min_ppl_results_orig{original}_rb{rope_base}.csv"
+    min_csv_filename = f"orig{original}_rb{rope_base}_{suffix}.csv"
     min_csv_path = os.path.join(result_dir, min_csv_filename)
     
     # 找到列表中最小值对应的索引 (例如 [3,1,2] 返回 1)
