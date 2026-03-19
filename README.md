@@ -58,3 +58,16 @@ Create `/results/` and `/graphs/` folders to store raw experiment results and fi
 ```
 !bash attn.sh
 ```
+
+### Citation
+
+```
+@inproceedings{
+bai2026sliding,
+title={Sliding Critical Band in Ro{PE}-based Length Extrapolation},
+author={Zifei Bai and Zhiwei Xu},
+booktitle={ICLR 2026 2nd Workshop on Deep Generative Model in Machine Learning: Theory, Principle and Efficacy},
+year={2026},
+url={https://openreview.net/forum?id=y2IeQSTxmc}
+}
+```
