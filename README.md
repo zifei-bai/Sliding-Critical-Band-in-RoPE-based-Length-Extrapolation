@@ -12,7 +12,7 @@ This Repo contains the code for "Sliding Critical Band in RoPE-based Length Extr
 
 Download data from: TODO
 
-Create `\results` and `graphs` folders
+Create `/results/` and `/graphs/` folders
 
 ```
 !bash find_ubs.sh
