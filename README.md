@@ -54,3 +54,7 @@ Create `/results/` and `/graphs/` folders
 ```
 
 ### Draw Figure 5 (Comparing Attention Pattern of Vanilla RoPE and Interpolating Sliding Critical Band)
+
+```
+!bash attn.sh
+```
