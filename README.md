@@ -25,7 +25,7 @@ Download train and test data from: [Google Drive](https://drive.google.com/drive
 
 Create `/data/` folder to store the data
 
-Create `/results/` and `/graphs/` folders
+Create `/results/` and `/graphs/` folders to store raw experiment results and figures
 
 ```
 !bash find_ubs.sh
