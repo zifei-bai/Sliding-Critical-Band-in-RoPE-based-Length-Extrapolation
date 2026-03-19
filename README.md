@@ -47,7 +47,7 @@ Create `/results/` and `/graphs/` folders
 !bash lb_graph.sh
 ```
 
-### Draw Figure 3 (Visializing Critical Band)
+### Draw Figure 3 and 4 (Visializing Critical Band)
 
 ```
 !bash draw_scb.sh
