@@ -1,8 +1,8 @@
 # Sliding Critical Band in RoPE-based Length Extrapolation
 
-*Zifei Bai & Zhiwei Xu*, 2nd DeLTa Workshop @ ICLR 2026
+*Zifei Bai & Zhiwei Xu*, [2nd DeLTa Workshop @ ICLR 2026](https://delta-workshop.github.io/DeLTa2026/)
 
-This Repo contains the code for "Sliding Critical Band in RoPE-based Length Extrapolation"
+This Repo contains the code for "Sliding Critical Band in RoPE-based Length Extrapolation", [paper link](https://openreview.net/forum?id=y2IeQSTxmc)
 
 ## Dependencies
 
