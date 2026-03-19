@@ -13,12 +13,12 @@ RESULT_PATH="./results/"
 PCTS=(1.1 1.2 1.5 2 4 8)
 
 
-echo "🚀 开始自动化批量实验..."
+echo "🚀 开始自动化批量实验...LB"
 
 # 开始循环遍历数组中的每一个值
 for pct in "${PCTS[@]}"; do
     echo "=================================================="
-    echo "Starting Evaluating: original=${ORIGINAL_LEN}, rope_base=10000, pct=${pct}"
+    echo "Starting Evaluating LB: original=${ORIGINAL_LEN}, rope_base=10000, pct=${pct}"
     echo "=================================================="
     
     # 1. 运行训练脚本 (调用你刚刚写好的 argparse)
@@ -41,15 +41,11 @@ for pct in "${PCTS[@]}"; do
         --rope_base 10000 \
         --batch_size 100 \
         --block_size 8192 \
-        --is_from \
-        --from_where 0 \
         --pct ${pct} \
         --is_save \
         --need_acc
         
-    echo "rope_base=10000 的一整套流程已跑完！"
+    echo "LB found"
     echo " "
     
 done
-
-echo "所有实验全部运行完毕，可以去查看结果了！"

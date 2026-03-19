@@ -22,8 +22,6 @@ itos = {i:ch for i, ch in enumerate(VOCAB)}
 encode = lambda s:[stoi[c] for c in s] # encoder: take a string, output a list of ints
 decode = lambda l: ''.join([itos[i] for i in l]) # decoder: take a list of ints, output a string
 
-print(encode("@12=12&"))
-print(decode(encode("@12=12&")))
 
 class LayerNorm(nn.Module):
     """ LayerNorm but with an optional bias. PyTorch doesn't support simply bias=False """

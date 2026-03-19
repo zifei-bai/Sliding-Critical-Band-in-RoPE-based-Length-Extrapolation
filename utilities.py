@@ -170,11 +170,8 @@ def get_wrong_ans_acc(model, num_digits, data_dir, block_size, batch_size, wrong
 
     acc = correct / len(data)
     print(f"Accuracy for {num_digits} digits: {acc}")
-    print(f"There are {len(data)} data")
-    print(f"There are {len(wrong_ans)} wrong answers are saved in {wrong_file_path}")
-    print(f"There are {len(correct_ans)} correct answers are saved in {correct_file_path}")
     print("----------------------------------")
-    print(wrong_ans[:10])
+    # print(wrong_ans[:10])
     print("----------------------------------")
     return acc
 
