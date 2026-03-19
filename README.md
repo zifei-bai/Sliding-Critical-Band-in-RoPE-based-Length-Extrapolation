@@ -22,19 +22,19 @@ Create `/results/` and `/graphs/` folders
 !bash find_lbs.sh
 ```
 
-### Draw Figure 1 (Get $d_\text{upper}$)
+### Draw Figure 1 (Visializing $d_\text{upper}$)
 
 ```
 !bash ub_graph.sh
 ```
 
-### Draw Figure 2 (Get $d_\text{lower}$)
+### Draw Figure 2 (Visializing $d_\text{lower}$)
 
 ```
 !bash lb_graph.sh
 ```
 
-### Draw Figure 3 (Visializing Critical Band$)
+### Draw Figure 3 (Visializing Critical Band)
 
 ```
 !bash draw_scb.sh
