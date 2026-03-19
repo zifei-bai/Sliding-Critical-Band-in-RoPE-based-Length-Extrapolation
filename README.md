@@ -8,7 +8,11 @@ This Repo contains the code for "Sliding Critical Band in RoPE-based Length Extr
 
 ## Experiments
 
-## Get Raw Results
+### Get Raw Results
+
+Download data from: TODO
+
+Create `\results` and `graphs` folders
 
 ```
 !bash find_ubs.sh
