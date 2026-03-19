@@ -4,6 +4,17 @@
 
 This Repo contains the code for "Sliding Critical Band in RoPE-based Length Extrapolation"
 
+## Dependencies
+
+```
+torch==2.10.0+cu128
+pandas==2.2.2
+numpy==2.0.2
+matplotlib==3.10.0
+wandb==0.25.1
+tqdm==4.67.3
+```
+
 ## File Structures
 
 ## Experiments
