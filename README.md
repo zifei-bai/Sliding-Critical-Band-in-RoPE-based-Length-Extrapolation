@@ -8,6 +8,16 @@ This Repo contains the code for "Sliding Critical Band in RoPE-based Length Extr
 
 ## Experiments
 
+## Get Raw Results
+
+```
+!bash find_ubs.sh
+```
+
+```
+!bash find_lbs.sh
+```
+
 ### Draw Figure 1 (Get $d_\text{upper}$)
 
 ### Draw Figure 2 (Get $d_\text{lower}$)

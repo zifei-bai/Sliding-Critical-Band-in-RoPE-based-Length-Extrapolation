@@ -5,7 +5,6 @@
 set -e 
 
 # 定义一些固定的变量
-ORIGINAL_LEN=100
 DATA_PATH="./data/"
 SAVE_PATH="./models/"
 RESULT_PATH="./results/"

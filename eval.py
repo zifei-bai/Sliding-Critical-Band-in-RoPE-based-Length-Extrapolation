@@ -248,30 +248,32 @@ if __name__ == '__main__':
         # ========================================================
         # 任务二：提取并追加最小值的位置(min_index)及具体数值(min_ppl)
         # ========================================================
-        if is_from:
-            min_csv_filename = f"orig{original}_rb{rope_base}_{suffix}.csv"
-            min_csv_path = os.path.join(result_dir, min_csv_filename)
+        # if is_from:
+        min_csv_filename = f"orig{original}_rb{rope_base}_{suffix}.csv"
+        min_csv_path = os.path.join(result_dir, min_csv_filename)
+        
+        clean_list = [np.nan if x is None else x for x in ppls[ppl_test]]
+        ppl_arr = np.array(clean_list, dtype=float)
+        
+        # 使用 np.nanargmin 专门找忽略空值之后的最小值索引
+        min_idx = int(np.nanargmin(ppl_arr)) 
+        min_ppl = float(ppl_arr[min_idx])
+        
+        # 构造极简的单行记录
+        df_min = pd.DataFrame({
+            "min_index": [min_idx],
+            "min_ppl": [min_ppl]
+        }, index=[pct])
+        
+        df_min.index.name = "pct" # 指定行名为 pct
+        
+        # 追加模式写入：文件不存在则带表头新建，存在则只追加数据
+        if not os.path.exists(min_csv_path):
+            df_min.to_csv(min_csv_path, mode='w', header=True)
+        else:
+            df_min.to_csv(min_csv_path, mode='a', header=False)
             
-            # 找到列表中最小值对应的索引 (例如 [3,1,2] 返回 1)
-            ppl_arr = np.array(ppls[ppl_test])
-            min_idx = int(np.argmin(ppl_arr)) 
-            min_ppl = float(ppl_arr[min_idx])
-            
-            # 构造极简的单行记录
-            df_min = pd.DataFrame({
-                "min_index": [min_idx],
-                "min_ppl": [min_ppl]
-            }, index=[pct])
-            
-            df_min.index.name = "pct" # 指定行名为 pct
-            
-            # 追加模式写入：文件不存在则带表头新建，存在则只追加数据
-            if not os.path.exists(min_csv_path):
-                df_min.to_csv(min_csv_path, mode='w', header=True)
-            else:
-                df_min.to_csv(min_csv_path, mode='a', header=False)
-                
-            print(f"✅ pct={pct} 的极小值 (min_index={min_idx}, min_ppl={min_ppl}) 已追加至 {min_csv_filename}")
+        print(f"✅ pct={pct} 的极小值 (min_index={min_idx}, min_ppl={min_ppl}) 已追加至 {min_csv_filename}")
         
         if need_acc and len(ood8_acc_list) > 0:
             acc_csv_filename = f"raw_acc_orig{original}_rb{rope_base}_{suffix}.csv"
