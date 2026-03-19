@@ -15,8 +15,6 @@ wandb==0.25.1
 tqdm==4.67.3
 ```
 
-## File Structures
-
 ## Experiments
 
 ### Get Raw Results
