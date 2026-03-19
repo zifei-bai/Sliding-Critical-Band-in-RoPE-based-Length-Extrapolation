@@ -12,6 +12,8 @@ This Repo contains the code for "Sliding Critical Band in RoPE-based Length Extr
 
 Download data from: TODO
 
+Create `/data/` folder to store the data
+
 Create `/results/` and `/graphs/` folders
 
 ```
