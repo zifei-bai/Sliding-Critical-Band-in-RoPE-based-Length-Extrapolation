@@ -24,10 +24,20 @@ Create `/results/` and `/graphs/` folders
 
 ### Draw Figure 1 (Get $d_\text{upper}$)
 
+```
+!bash ub_graph.sh
+```
+
 ### Draw Figure 2 (Get $d_\text{lower}$)
 
-### Draw Figure 3 (Visializing Critical Band on different Trainig Length $L_\text{train}$)
+```
+!bash lb_graph.sh
+```
 
-### Draw Figure 4 (Visializing Critical Band on different RoPE-base $\theta$)
+### Draw Figure 3 (Visializing Critical Band$)
+
+```
+!bash draw_scb.sh
+```
 
 ### Draw Figure 5 (Comparing Attention Pattern of Vanilla RoPE and Interpolating Sliding Critical Band)

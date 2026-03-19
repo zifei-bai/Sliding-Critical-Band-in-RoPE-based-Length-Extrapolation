@@ -126,7 +126,7 @@ if __name__ == '__main__':
         special_i = from_where-1
         
         ppls[ppl_test] = [None] * (from_where - 1)
-        ood8_acc_list = [None] * (from_where - 1) if pct < 2 else []
+        ood8_acc_list = [None] * (from_where - 1) if (pct < 2 and original <= 100) else []
         print(f"🧹 已在数据前填充 {from_where - 1} 个空位以对齐 CSV")
 
     for i in iter_list:

@@ -178,7 +178,7 @@ if __name__ == '__main__':
         graph_dir=graph_dir,
         compare_mode='original',       # 设定为比较 length
         original_lengths=[50, 100, 500], # 这里传列表
-        rope_base=10000,               # 这里传单个固定值
+        rope_bases=10000,               # 这里传单个固定值
         save_filename='sliding_band_by_original.pdf'
     )
     
