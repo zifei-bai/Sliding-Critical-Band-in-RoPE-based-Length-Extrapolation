@@ -21,7 +21,7 @@ tqdm==4.67.3
 
 ### Get Raw Results
 
-Download data from: TODO
+Download data from: [Google Drive](https://drive.google.com/drive/folders/1YGlSPncM8ZF91vwQwvd71Cd9E8ACLC9w?usp=sharing)
 
 Create `/data/` folder to store the data
 
