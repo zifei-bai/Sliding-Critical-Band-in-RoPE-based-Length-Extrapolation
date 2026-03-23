@@ -41,7 +41,7 @@ for ori in "${ORIGINAL_LEN[@]}"; do
 
     # 运行 Python 脚本，将刚刚分配好的变量传进去
     # 注意："${ZW}" 外面一定要加双引号，防止字典里的空格被终端截断
-    python draw_graphs.py \
+    python src/draw_graphs.py \
         --result_dir "${RESULT_PATH}" \
         --graph_dir "${GRAPH_PATH}" \
         --original ${ori} \
@@ -53,7 +53,7 @@ for ori in "${ORIGINAL_LEN[@]}"; do
     echo "✅ Figure saved for original=${ori}"
 done
 
-python draw_graphs.py \
+python src/draw_graphs.py \
         --result_dir "${RESULT_PATH}" \
         --graph_dir "${GRAPH_PATH}" \
         --original 500 \
