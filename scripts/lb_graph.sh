@@ -56,4 +56,4 @@ python src/draw_graphs.py \
         --zoom_widths "{1.1:25, 1.2:45, 1.5:25, 2:20, 4:20, 8:20}" \
         --ublb "lb"
         
-echo "✅ Figure saved for original=500, rb=100000"
+echo Figure saved for original=500, rb=100000"
