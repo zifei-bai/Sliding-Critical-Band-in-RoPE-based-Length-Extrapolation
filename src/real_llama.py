@@ -11,8 +11,7 @@ from transformers.models.llama.modeling_llama import LlamaRotaryEmbedding
 
 
 def get_c4_data(tokenizer, seq_len, num_samples=100):
-    """从 allenai/c4 加载数据，并截取到指定长度"""
-    print(f"📥 正在从 Hugging Face 下载并处理 C4 数据 (长度: {seq_len})...")
+    """Load allenai/c4 data, truncate to length"""
     dataset = load_dataset("allenai/c4", "en", split="validation", streaming=True)
 
     input_ids_list = []
@@ -28,15 +27,14 @@ def get_c4_data(tokenizer, seq_len, num_samples=100):
     return torch.cat(input_ids_list, dim=0)
 
 def load_or_generate_data(tokenizer, seq_len, num_samples, cache_file):
-    """如果有本地缓存则读取，没有则在线下载并处理"""
     if os.path.exists(cache_file):
-        print(f"📦 发现本地数据缓存，正在加载: {cache_file}...")
+        print(f"Local data found: {cache_file}...")
         return torch.load(cache_file)
     else:
-        print(f"🌐 未找到本地缓存。准备生成长度为 {seq_len} 的数据...")
+        print(f"Can;t find data, processing {seq_len} data...")
         data = get_c4_data(tokenizer, seq_len, num_samples=num_samples)
         os.makedirs(os.path.dirname(cache_file), exist_ok=True)
-        print(f"💾 保存数据缓存至: {cache_file}...")
+        print(f"Cached data saved to: {cache_file}...")
         torch.save(data, cache_file)
         return data
 
@@ -79,14 +77,13 @@ class FlexibleRotaryEmbedding(torch.nn.Module):
         return cos, sin
 
 def apply_scaling_map(model, scale_map, max_len):
-    """将官方 RoPE 替换为我们的 Flexible RoPE"""
     target_rotary = None
     if hasattr(model.model, "rotary_emb"):
         target_rotary = model.model.rotary_emb
     elif hasattr(model.model.layers[0].self_attn, "rotary_emb"):
         target_rotary = model.model.layers[0].self_attn.rotary_emb
     else:
-        raise AttributeError("找不到 rotary_emb 模块！")
+        raise AttributeError("Can't find RoPE block")
 
     derived_dim = target_rotary.inv_freq.shape[0] * 2
     derived_base = getattr(target_rotary, "base", 10000.0)
@@ -102,11 +99,7 @@ def apply_scaling_map(model, scale_map, max_len):
         for layer in model.model.layers:
             layer.self_attn.rotary_emb = new_rotary
 
-# ==========================================
-# 3. 评估函数
-# ==========================================
 def calculate_ppl(model, dataloader):
-    """计算当前 DataLoader 内文本的困惑度 (Perplexity)"""
     model.eval()
     total_nll, total_tokens = 0, 0
     with torch.no_grad():
@@ -118,9 +111,7 @@ def calculate_ppl(model, dataloader):
     avg_nll = total_nll / total_tokens
     return torch.exp(torch.tensor(avg_nll)).item()
 
-# ==========================================
-# 4. 主程序入口
-# ==========================================
+
 if __name__ == '__main__':
     parser = argparse.ArgumentParser(description="End-to-End Real Validation for LLaMA RoPE")
     parser.add_argument('--model_id', type=str, default="huggyllama/llama-7b")
@@ -149,36 +140,30 @@ if __name__ == '__main__':
     dataset = TensorDataset(data_tensor[:args.num_samples]) 
     loader = DataLoader(dataset, batch_size=args.batch_size, shuffle=False)
 
-    # 模型常数推断 (LLaMA-7B default)
     DIM_HEAD = 128
     NUM_FREQS = DIM_HEAD // 2 # 64
 
-    # ------------------------------------------
-    # Stage 1: 寻找高频截断点 k (即 UB)
-    # ------------------------------------------
     print("\n" + "="*50)
-    print("   Stage 1: Find UB (Upper Bound)")
+    print("Find UB (Upper Bound)")
     print("="*50)
     results_stage_1 = []
     
     for k in range(NUM_FREQS + 1):
         scale_map = torch.ones(NUM_FREQS).to(device)
-        scale_map[:k] = 1.0               # [0, k) 保持原样 (Gold)
-        scale_map[k:] = args.target_scale # [k, 64) 执行插值 (PI)
+        scale_map[:k] = 1.0               
+        scale_map[k:] = args.target_scale
 
         apply_scaling_map(model, scale_map, args.seq_len)
         ppl = calculate_ppl(model, loader)
         results_stage_1.append(ppl)
-        print(f"  Cutoff k={k}: PPL = {ppl:.4f}")
+        print(f"Cutoff k={k}: PPL = {ppl:.4f}")
 
     best_k = torch.argmin(torch.tensor(results_stage_1)).item()
-    print(f"Stage 1 Best Cutoff (UB): k = {best_k}")
+    print(f"Best UB: k = {best_k}")
 
-    # ------------------------------------------
-    # Stage 2: 探索低频/平滑窗口 (即 LB)
-    # ------------------------------------------
+
     print("\n" + "="*50)
-    print(f"   Stage 2: Find LB (Start from k={best_k})")
+    print(f"Find LB (Start from k={best_k})")
     print("="*50)
     results_stage_2 = []
     max_w = NUM_FREQS - best_k
@@ -186,22 +171,17 @@ if __name__ == '__main__':
     for w in range(max_w):
         scale_map = torch.ones(NUM_FREQS).to(device)
         scale_map[:best_k] = 1.0
-        scale_map[best_k: best_k + w] = args.target_scale # 扫略插值窗口
+        scale_map[best_k: best_k + w] = args.target_scale
         
         apply_scaling_map(model, scale_map, args.seq_len)
         ppl = calculate_ppl(model, loader)
         results_stage_2.append(ppl)
         print(f"  Window width w={w} (Indices {best_k} to {best_k+w}): PPL = {ppl:.4f}")
 
-    # ------------------------------------------
-    # 数据对齐与保存 CSV
-    # ------------------------------------------
-    print("\n📦 正在对齐并保存 CSV 数据...")
+    print("\nData saved...")
     
-    # 前面补充 best_k 个 0.0 以对齐索引
     new_results_stage_2 = [0.0] * best_k + results_stage_2
     
-    # 自动对齐长度保护机制
     if len(new_results_stage_2) < len(results_stage_1):
         new_results_stage_2 += [0.0] * (len(results_stage_1) - len(new_results_stage_2))
 
@@ -210,7 +190,6 @@ if __name__ == '__main__':
         'PPL_lb': new_results_stage_2
     })
 
-    # 将占位的 0.0 统一替换为 NaN
     df = df.replace(0.0, np.nan)
 
     # 保存为 CSV
@@ -218,7 +197,7 @@ if __name__ == '__main__':
     save_path = os.path.join(args.result_dir, csv_filename)
     df.to_csv(save_path, index=False)
     
-    print(f"🎉 真实场景验证完成！结果已完美对齐并保存至: {save_path}")
+    print(f"Raw reuslt data saved to: {save_path}")
 
 
 

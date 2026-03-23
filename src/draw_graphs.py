@@ -8,22 +8,20 @@ import os
 import argparse
 import ast
 import torch
-from config import VOCAB # 确保导入了 VOCAB
+from config import VOCAB 
 
 def parse_dict(arg_str):
     try:
-        # literal_eval 可以将类似 "{'a': 1}" 的字符串安全地转换成真实字典
         parsed = ast.literal_eval(arg_str)
         if not isinstance(parsed, dict):
             raise ValueError("Input is not a dictionary")
         return parsed
     except Exception as e:
-        raise argparse.ArgumentTypeError(f"无效的字典格式! 请确认格式如: \"{{1.1: 21, 1.2: 17}}\"\\n错误信息: {e}")
+        raise argparse.ArgumentTypeError(f"Error {e}")
 
 def parse_args():
     parser = argparse.ArgumentParser(description="Draw UBs Script")
     
-    # 路径参数
     parser.add_argument('--result_dir', type=str, default=None)
     parser.add_argument('--graph_dir', type=str, default=None)
     parser.add_argument("--original", type=int, default=None)
@@ -44,36 +42,32 @@ def draw_evaluation_plots(
     acc_csv_path=None
 ):
     """
-    绘制 PPL (和可选的 ACC) 随维度 d 变化的图表。
+    Draw PPL (optional ACC) change with dimention (d)
     
     参数:
-    - ppl_csv_path: PPL 数据的 CSV 路径
-    - original_length: 原始长度 (如 50, 100, 500)
-    - vline_x: 垂直参考线所在的 x 坐标 (如 37, 43)
-    - zoom_widths_dict: 字典，映射 s_val 到放大镜宽度，如 {1.1: 21, 1.2: 17, ...}
-    - save_path: 图片保存的完整路径
-    - acc_csv_path: ACC 数据的 CSV 路径。如果不传或为 None，则只画 PPL 单 Y 轴。
+    - ppl_csv_path: PPL CSV data path
+    - original_length: training length (50, 100, 500)
+    - vline_x: d_extra
+    - zoom_widths_dict: subgraph width {1.1: 21, 1.2: 17, ...}
+    - save_path: save path
+    - acc_csv_path: ACC CSV data path. If None, single PPL y axis
     """
     
-    # 1. 加载数据
     if not os.path.exists(ppl_csv_path):
-        print(f"❌ 找不到 PPL 数据文件: {ppl_csv_path}")
+        print(f"Can't find PPL data file: {ppl_csv_path}")
         return
         
     df_ppl = pd.read_csv(ppl_csv_path)
     x_col = df_ppl.columns[0]
     x = df_ppl[x_col]
     
-    # 自动解析列名和 s_vals
     cols = df_ppl.columns[1:].tolist()
     s_vals = [float(col) / original_length for col in cols]
     
-    # 尝试加载 Accuracy 数据
     df_acc = None
     if acc_csv_path and os.path.exists(acc_csv_path):
         df_acc = pd.read_csv(acc_csv_path)
 
-    # 2. 动态创建画布
     num_plots = len(cols)
     ncols = 3
     nrows = int(np.ceil(num_plots / ncols))
@@ -94,14 +88,11 @@ def draw_evaluation_plots(
         start_x = valid_x.min() if not valid_x.empty else 0
         end_x = valid_x.max() if not valid_x.empty else 100
 
-        # 获取指定的放大宽度，如果没有配置则默认 20
         w = zoom_widths_dict.get(s_val, 20)
 
-        # 获取最小值索引和坐标
         min_idx = y_ppl.idxmin()
         min_x, min_val = df_ppl.loc[min_idx, x_col], y_ppl[min_idx]
 
-        # --- 绘制主图 PPL ---
         ln1 = ax.plot(x, y_ppl, color=ppl_color, linestyle='--', linewidth=1.5, alpha=0.8, label='Perplexity')
         ax.set_title(f'Extrapolation Ratio $s = {s_val:g}$', fontsize=14, fontweight='bold', pad=15)
         ax.set_xlabel('Dimensions ($d$)', fontsize=12)
@@ -109,14 +100,12 @@ def draw_evaluation_plots(
         ax.tick_params(axis='y', labelcolor=ppl_color)
         
         
-        ax.set_xlim([start_x-5, max(end_x, 100)]) # 保证至少显示到 100，也可以根据需要调整
+        ax.set_xlim([start_x-5, max(end_x, 100)]) 
         ax.grid(True, linestyle=':', alpha=0.4)
 
-        # --- 处理 Accuracy (双坐标轴) ---
         lns = ln1
         if df_acc is not None and col in df_acc.columns:
             ax2 = ax.twinx()
-            # 确保 x 轴对齐
             acc_x_col = df_acc.columns[0]
             y_acc_aligned = df_acc.set_index(acc_x_col).reindex(x).reset_index()[col]
             
@@ -126,16 +115,13 @@ def draw_evaluation_plots(
             ax2.set_ylim(-0.05, 1.05)
             lns = ln1 + ln2
 
-        # 图例
         labs = [l.get_label() for l in lns]
         ax.legend(lns, labs, loc='lower right', fontsize=6, framealpha=0.8)
 
        
         
         if vline_x != -1:
-             # --- 绘制自定义垂直虚线及标注 ---
             ax.axvline(x=vline_x, color='black', linestyle=':', linewidth=1.2, alpha=0.6)
-            # PPL 垂直线交点
             val_vline_ppl_series = df_ppl[df_ppl[x_col] == vline_x][col]
             if not val_vline_ppl_series.empty:
                 val_vline_ppl = val_vline_ppl_series.iloc[0]
@@ -147,7 +133,6 @@ def draw_evaluation_plots(
                                 fontsize=8, color='black', fontweight='bold',
                                 arrowprops=dict(arrowstyle='->', color='black'))
 
-            # ACC 垂直线交点
             if df_acc is not None and col in df_acc.columns:
                 val_vline_acc_series = df_acc[df_acc[acc_x_col] == vline_x][col]
                 if not val_vline_acc_series.empty:
@@ -160,10 +145,8 @@ def draw_evaluation_plots(
                                     fontsize=8, color=acc_color, fontweight='bold',
                                     arrowprops=dict(arrowstyle='->', color=acc_color))
 
-        # 使用指定的宽度 w 绘制主图阴影
         ax.axvspan(min_x - w, min_x + w, color='red', alpha=0.05)
 
-        # --- 绘制放大镜 ---
         inset_x_lim = [max(start_x, min_x - w), min(end_x, min_x + w)]
 
         axins = inset_axes(ax, width="50%", height="33%", loc='right',
@@ -198,17 +181,15 @@ def draw_evaluation_plots(
         if y_ppl.max() > 1000:
             ax.ticklabel_format(style='sci', axis='y', scilimits=(0,0))
 
-    # 清除多余的空坐标轴
     for j in range(i + 1, len(axes)):
         axes[j].axis('off')
 
     plt.subplots_adjust(wspace=0.4, hspace=0.4)
     
-    # 确保保存目录存在
     os.makedirs(os.path.dirname(save_path), exist_ok=True)
     plt.savefig(save_path, bbox_inches='tight')
-    print(f"✅ 图表已保存至: {save_path}")
-    plt.close() # 释放内存
+    print(f"Graph saved to: {save_path}")
+    plt.close()
 
 
 
@@ -216,10 +197,7 @@ def draw_evaluation_plots(
 if __name__ == '__main__':
     
     args = parse_args()
-    # ==========================================
-    # 1. 路径与文件夹设置 (在此处修改为你想要的路径)
-    # ==========================================
-    # 指向你要读取的 csv 文件
+
     d_extra=args.d_extra
     zoom_width_dict = args.zoom_widths
     
@@ -239,9 +217,6 @@ if __name__ == '__main__':
     acc_result_filename = f"raw_acc_orig{original}_rb{rb}_{ublb}.csv"
     acc_result_file_path = os.path.join(result_path, acc_result_filename)
 
-
-    # 强烈建议在这里把你刚刚写好的函数调用放进来
-    # 例如画 original = 100 的图：
     draw_evaluation_plots(
         ppl_csv_path = ppl_result_file_path,
         acc_csv_path = acc_result_file_path, 

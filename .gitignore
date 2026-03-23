@@ -1,3 +1,6 @@
 /data/
 /results/
 /graphs/
+__pycache__/
+*.py[cod]
+/wandb/

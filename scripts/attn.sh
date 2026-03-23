@@ -10,7 +10,7 @@ GRAPH_PATH="./graphs/"
 
 
 echo "========================================="
-echo "  Step 1: 运行模型，提取 Attention 矩阵  "
+echo "  Extract Attention Matrix  "
 echo "========================================="
 python get_attn.py \
     --working_dir "${WORKING_PATH}" \
@@ -21,7 +21,7 @@ python get_attn.py \
     --rope_base 10000 
 
 echo "========================================="
-echo "  Step 2: 读取数据，绘制 PDF 矢量图      "
+echo "  Read data, draw attention map     "
 echo "========================================="
 python draw_attn.py \
     --result_dir "${RESULT_PATH}" \
@@ -29,4 +29,4 @@ python draw_attn.py \
     --original 50 \
     --pct 1.5
 
-echo "🎉 全部流程执行完毕！"
+echo "Process Done. "

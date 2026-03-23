@@ -22,36 +22,31 @@ from utilities import get_wrong_ans_acc, estimate_ppl
 
 import argparse
 import torch
-from config import VOCAB # 确保导入了 VOCAB
+from config import VOCAB
 
 def parse_args():
     parser = argparse.ArgumentParser(description="RoPE Model Evaluation Script")
     
-    # 路径参数
     parser.add_argument('--working_dir', type=str, default="/content/drive/MyDrive/Research/RoPE_NoPE/final_for_paper/")
     parser.add_argument('--data_dir', type=str, default="/content/drive/MyDrive/Research/train_test_data/")
     parser.add_argument('--result_dir', type=str, default=None)
     
-    # 模型架构参数
     parser.add_argument('--n_embd', type=int, default=384)
     parser.add_argument('--n_head', type=int, default=2)
     parser.add_argument('--n_layer', type=int, default=4)
     parser.add_argument('--dropout', type=float, default=0.0)
     parser.add_argument('--rope_base', type=int, default=10000)
-    # bias 默认为 True，如果传入 --no_bias 则变为 False
     parser.add_argument('--no_bias', action='store_false', dest='bias') 
     
-    # 实验与数据参数
     parser.add_argument('--batch_size', type=int, default=100)
     parser.add_argument('--block_size', type=int, default=8192)
     parser.add_argument('--eval_iters', type=int, default=10)
     parser.add_argument('--original', type=int, default=500)
     parser.add_argument('--inverse_t', type=float, default=1.0)
     parser.add_argument('--from_where', type=int, default=0)
-    parser.add_argument('--pct', type=float, default=1.0) # 建议用 float，以防你传 8.5
+    parser.add_argument('--pct', type=float, default=1.0) 
     parser.add_argument('--ramp', type=int, default=1)
     
-    # 布尔控制开关 (如果不传该参数，默认是 False；在命令行加上该参数，就是 True)
     parser.add_argument('--is_from', action='store_true')
     parser.add_argument('--is_save', action='store_true')
     parser.add_argument('--need_acc', action='store_true')
@@ -60,10 +55,9 @@ def parse_args():
 
 
 if __name__ == '__main__':
-    # 解析命令行参数
     args = parse_args()
 
-    # --- 为了不修改你后面的代码，这里将 args 拆解回你原来的变量名 ---
+
     batch_size = args.batch_size
     block_size = args.block_size
     n_embd = args.n_embd
@@ -85,27 +79,25 @@ if __name__ == '__main__':
     is_save = args.is_save
     need_acc = args.need_acc
 
-    # 动态推断和无需外部传入的变量保留原样
     device = 'cuda' if torch.cuda.is_available() else 'cpu'
     vocab_size = len(VOCAB)
     indices = None
     
-    if not is_from:  # 也就是说如果是 lb (To_) 模式
-        # 拼出对应的 ub 文件名 (注意这里固定读 _ub.csv)
+    if not is_from:  
         ub_csv_path = os.path.join(result_dir, f"orig{original}_rb{rope_base}_ub.csv")
         
         if os.path.exists(ub_csv_path):
             df_ub = pd.read_csv(ub_csv_path)
-            # 找到当前 pct 对应的那一行
+           
             match_row = df_ub[df_ub['pct'] == pct]
             if not match_row.empty:
-                # 覆盖命令行的 from_where
+             
                 from_where = int(match_row['min_index'].iloc[0])
-                print(f"🎯 自动读取成功！pct={pct} 的最佳起点 from_where={from_where}")
+                print(f"pct={pct} best start, from_where={from_where}")
             else:
-                print(f"⚠️ 警告: ub 表中找不到 pct={pct}，将使用默认 from_where={from_where}")
+                print(f"can't find ub pct={pct}, default from_where={from_where}")
         else:
-            print(f"⚠️ 警告: 找不到对应的 ub 表格 {ub_csv_path}，将使用默认 from_where={from_where}")
+            print(f"can't find {ub_csv_path} path, default from_where={from_where}")
 
     ind_acc_list = []
     ood8_acc_list = []
@@ -127,7 +119,7 @@ if __name__ == '__main__':
         
         ppls[ppl_test] = [None] * (from_where - 1)
         ood8_acc_list = [None] * (from_where - 1) if (pct < 2 and original <= 100) else []
-        print(f"🧹 已在数据前填充 {from_where - 1} 个空位以对齐 CSV")
+        print(f"filled {from_where - 1} empty block to CSV")
 
     for i in iter_list:
         print("----------------------------------------------")
@@ -147,8 +139,6 @@ if __name__ == '__main__':
                                                         block_size=block_size,
                                                         batch_size=100))
 
-
-            # get ppl on original-original+2
             for num_digits in [ppl_test]:
                 data=[]
                 with open(f"{data_dir}teach_force_{num_digits}.txt", "r", encoding="utf-8") as f:
@@ -205,10 +195,6 @@ if __name__ == '__main__':
                                                     block_size=block_size,
                                                     batch_size=100))
 
-            # ood8_acc_list.append(get_wrong_ans_acc(m0, 150,
-            #                                        block_size=block_size,
-            #                                        batch_size=100))
-
 
         # get ppl on original-original+2
         for num_digits in [ppl_test]:
@@ -225,29 +211,25 @@ if __name__ == '__main__':
 
 
     if is_save:
-        # ========================================================
-        # 任务一：保存完整的原始数据 (和你上传的表格格式完全一致)
-        # ========================================================
+      
         suffix = "ub" if is_from else "lb"
         raw_csv_filename = f"raw_ppl_orig{original}_rb{rope_base}_{suffix}.csv"
-        raw_csv_path = os.path.join(result_dir, raw_csv_filename) # 如果你那边叫 result_dir 就改一下
+        raw_csv_path = os.path.join(result_dir, raw_csv_filename) 
         
         if os.path.exists(raw_csv_path):
             df_raw = pd.read_csv(raw_csv_path, index_col=0)
         else:
             df_raw = pd.DataFrame()
             
-        # 2. 将这次跑出来的结果（比如 key 是 110, 120），作为“新的一列”挂到右边
+      
         for k, v in ppls.items():
             df_raw[str(k)] = pd.Series(v)
             
-        # 3. 覆盖保存文件，带上左边的 0, 1, 2... 索引
+       
         df_raw.to_csv(raw_csv_path, index=True) 
-        print(f"✅ pct={pct} 的数据已作为【新列】加入到: {raw_csv_filename}")
+        print(f"pct={pct} added: {raw_csv_filename}")
 
-        # ========================================================
-        # 任务二：提取并追加最小值的位置(min_index)及具体数值(min_ppl)
-        # ========================================================
+
         # if is_from:
         min_csv_filename = f"orig{original}_rb{rope_base}_{suffix}.csv"
         min_csv_path = os.path.join(result_dir, min_csv_filename)
@@ -255,39 +237,33 @@ if __name__ == '__main__':
         clean_list = [np.nan if x is None else x for x in ppls[ppl_test]]
         ppl_arr = np.array(clean_list, dtype=float)
         
-        # 使用 np.nanargmin 专门找忽略空值之后的最小值索引
         min_idx = int(np.nanargmin(ppl_arr)) 
         min_ppl = float(ppl_arr[min_idx])
         
-        # 构造极简的单行记录
         df_min = pd.DataFrame({
             "min_index": [min_idx],
             "min_ppl": [min_ppl]
         }, index=[pct])
         
-        df_min.index.name = "pct" # 指定行名为 pct
+        df_min.index.name = "pct"
         
-        # 追加模式写入：文件不存在则带表头新建，存在则只追加数据
         if not os.path.exists(min_csv_path):
             df_min.to_csv(min_csv_path, mode='w', header=True)
         else:
             df_min.to_csv(min_csv_path, mode='a', header=False)
             
-        print(f"✅ pct={pct} 的极小值 (min_index={min_idx}, min_ppl={min_ppl}) 已追加至 {min_csv_filename}")
+        print(f"✅ pct={pct} (min_index={min_idx}, min_ppl={min_ppl}) added to {min_csv_filename}")
         
         if need_acc and len(ood8_acc_list) > 0:
             acc_csv_filename = f"raw_acc_orig{original}_rb{rope_base}_{suffix}.csv"
             acc_csv_path = os.path.join(result_dir, acc_csv_filename)
             
-            # 读取已有表格或新建空表
             if os.path.exists(acc_csv_path):
                 df_acc = pd.read_csv(acc_csv_path, index_col=0)
             else:
                 df_acc = pd.DataFrame()
                 
-            # 将 list 转换为一列，列名直接使用当前的 ppl_test (如 "110", "120")
             df_acc[str(ppl_test)] = pd.Series(ood8_acc_list)
                 
-            # 覆盖保存
             df_acc.to_csv(acc_csv_path, index=True) 
-            print(f"✅ pct={pct} 的 ACC 数据已作为【新列】加入到: {acc_csv_filename}")
+            print(f"✅ pct={pct} ACC added to: {acc_csv_filename}")

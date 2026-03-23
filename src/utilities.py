@@ -22,7 +22,7 @@ from model import encode, decode
 
 import argparse
 import torch
-from config import VOCAB, PADDING_TOKEN_INDEX, END_TOKEN_INDEX, DEVICE # 确保你已经从 config 导入了 VOCAB
+from config import VOCAB, PADDING_TOKEN_INDEX, END_TOKEN_INDEX, DEVICE 
 
 
 
@@ -35,7 +35,7 @@ def estimate_loss(data, model, eval_iters, batch_size, block_size):
     losses = torch.zeros(eval_iters)
     for k in range(eval_iters):
         X, Y = get_batch_random(data, batch_size, block_size)
-        # padding_mask_x = (X != padding_token_index).long()
+       
         logits, loss = model(X, Y)
         losses[k] = loss.item()
     out['loss'] = losses.mean()
@@ -51,7 +51,7 @@ def estimate_ppl(data, model, eval_iters, batch_size, block_size):
     losses = torch.zeros(eval_iters)
     ppl_list, valid_count_list = [], []
     for k in range(eval_iters):
-        X, Y = get_batch_random(data, batch_size, block_size) # Pass len(data) as batch_size to avoid sampling more than available
+        X, Y = get_batch_random(data, batch_size, block_size) 
         ppl, valid_count = model.forward_with_ppl(X, Y)
         ppl_list.append(ppl)
         valid_count_list.append(valid_count)
@@ -73,24 +73,23 @@ def get_batch(data, iters, batch_size, block_size):
     """data is combined dataset, get combined dataset in train loop"""
     i = int(iters % (len(data) // batch_size))
     final_sample = data[i*batch_size:(i+1)*batch_size]
-    # final_sample = random.sample(data, batch_size)
+   
     final_sample = [line.strip() for line in final_sample]
 
     x_list, y_list = [], []
     for x_str in final_sample:
-        # print(x_str)
+        
         x_encoded = encode(x_str)
         len_xencoded = len(x_encoded)
-        # print(f"length x is {len_xencoded}")
+        
 
         x_padded = x_encoded + [PADDING_TOKEN_INDEX] * (block_size - len(x_encoded))
         x_list.append(torch.tensor(x_padded, dtype=torch.int64))
         y_encoded = encode(x_str)[1:]
-        # y_encoded.append(end_token_index)
+        
         y_padded = y_encoded + [PADDING_TOKEN_INDEX] * (block_size - len(y_encoded))
 
-        # num_digit = int((len_xencoded - 2) / 2)
-        # y_padded[:num_digit] = [padding_token_index] * num_digit
+       
         y_list.append(torch.tensor(y_padded, dtype=torch.int64))
 
     x_tensor = torch.stack(x_list).to(DEVICE)
@@ -105,19 +104,18 @@ def get_batch_random(data, batch_size, block_size):
 
     x_list, y_list = [], []
     for x_str in final_sample:
-        # print(x_str)
+      
         x_encoded = encode(x_str)
         len_xencoded = len(x_encoded)
-        # print(f"length x is {len_xencoded}")
+      
 
         x_padded = x_encoded + [PADDING_TOKEN_INDEX] * (block_size - len(x_encoded))
         x_list.append(torch.tensor(x_padded, dtype=torch.int64))
         y_encoded = encode(x_str)[1:]
-        # y_encoded.append(end_token_index)
+       
         y_padded = y_encoded + [PADDING_TOKEN_INDEX] * (block_size - len(y_encoded))
 
-        # num_digit = int((len_xencoded - 2) / 2)
-        # y_padded[:num_digit] = [padding_token_index] * num_digit
+     
         y_list.append(torch.tensor(y_padded, dtype=torch.int64))
 
     x_tensor = torch.stack(x_list).to(DEVICE)
@@ -128,7 +126,7 @@ def get_batch_random(data, batch_size, block_size):
 
 def get_wrong_ans_acc(model, num_digits, data_dir, block_size, batch_size, wrong_file_path=None, correct_file_path=None):
     data=[]
-    # 推荐使用 os.path.join 拼接路径更安全，或者保持你原来的 f"{data_dir}test_{num_digits}.txt" 也行
+  
     file_path = os.path.join(data_dir, f"test_{num_digits}.txt")
     with open(file_path, "r", encoding="utf-8") as f:
         data = f.readlines()
@@ -139,7 +137,7 @@ def get_wrong_ans_acc(model, num_digits, data_dir, block_size, batch_size, wrong
     correct_ans = []
     num_batches = len(data) // batch_size
     print(f"There are {num_batches} batches")
-    # wrong_ans = []
+    
     wrong = 0
     wrong_ans = []
     for x in range(num_batches):
@@ -147,7 +145,7 @@ def get_wrong_ans_acc(model, num_digits, data_dir, block_size, batch_size, wrong
 
         context = torch.tensor([encode(inp) for inp in prompts], dtype=torch.long, device=DEVICE)
 
-        # output in batch
+      
         output_batch = generate_greedy(model=model, idx=context, max_new_tokens=block_size)
 
         targets = [p + p[1:-1] + "&" for p in prompts]
@@ -171,13 +169,13 @@ def get_wrong_ans_acc(model, num_digits, data_dir, block_size, batch_size, wrong
     acc = correct / len(data)
     print(f"Accuracy for {num_digits} digits: {acc}")
     print("----------------------------------")
-    # print(wrong_ans[:10])
+   
     print("----------------------------------")
     return acc
 
 
 
-# Helper function for multiple training models for 90%+ accuracy
+
 def create_optimizer_and_scheduler(model, total, warm, decay, lr):
     # AdamW
     optimizer = torch.optim.AdamW(
@@ -189,18 +187,18 @@ def create_optimizer_and_scheduler(model, total, warm, decay, lr):
     )
 
     # LR Scheduler
-    total_steps = total # CHANGE, CHECK max_iter
+    total_steps = total 
     warmup_steps = warm
     decay_steps = decay
     stable_steps = total_steps - warmup_steps - decay_steps
 
     def lr_lambda(step):
         if step < warmup_steps:
-            return step / warmup_steps  # Linear warmup 0->1
+            return step / warmup_steps  
         elif step < warmup_steps + stable_steps:
-            return 1.0                  # Stable
+            return 1.0               
         else:
-            # Cosine decay from 1->0
+           
             decay_ratio = (step - warmup_steps - stable_steps) / decay_steps
             return 0.5 * (1 + math.cos(math.pi * decay_ratio))
 
