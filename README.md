@@ -65,6 +65,8 @@ Find $d_\text{upper}$ and $d_\text{lower}$
 !bash scripts/real_ppl.sh
 ```
 
+Plotting Sliding Critical Band
+
 ```
 !bash scripts/plot_real_scb.sh
 ```
