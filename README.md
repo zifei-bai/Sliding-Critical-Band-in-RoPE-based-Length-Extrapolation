@@ -59,13 +59,17 @@ Create `/results/` and `/graphs/` folders to store raw experiment results and fi
 
 ### Draw Figure 6 (Real Model's Sliding Critical Band)
 
-```
-!bash scripts/plot_real_scb.sh
-```
+Find $d_\text{upper}$ and $d_\text{lower}$
 
 ```
 !bash scripts/real_ppl.sh
 ```
+
+```
+!bash scripts/plot_real_scb.sh
+```
+
+
 #### Figure 13 (PPL changes on dimension $d$)
 
 ```
