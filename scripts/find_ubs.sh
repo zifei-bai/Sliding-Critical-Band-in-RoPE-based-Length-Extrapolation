@@ -21,7 +21,7 @@ for ori_len in "${ORIGINAL_LEN[@]}"; do
         echo "=================================================="
         
        
-        python eval.py \
+        python scripts/eval.py \
             --data_dir ${DATA_PATH} \
             --working_dir ${SAVE_PATH} \
             --result_dir ${RESULT_PATH} \
@@ -52,7 +52,7 @@ for pct in "${PCTS[@]}"; do
         
     
         
-        python eval.py \
+        python src/eval.py \
             --data_dir ${DATA_PATH} \
             --working_dir ${SAVE_PATH} \
             --result_dir ${RESULT_PATH} \

@@ -8,7 +8,7 @@ RESULT_PATH="./results/"
 GRAPH_PATH="./graphs/"
 
     
-python draw_scb.py \
+python src/draw_scb.py \
     --result_dir ${RESULT_PATH} \
     --graph_dir ${GRAPH_PATH} 
     

@@ -12,7 +12,7 @@ GRAPH_PATH="./graphs/"
 echo "========================================="
 echo "  Extract Attention Matrix  "
 echo "========================================="
-python get_attn.py \
+python src/get_attn.py \
     --working_dir "${WORKING_PATH}" \
     --data_dir "${DATA_PATH}" \
     --result_dir "${RESULT_PATH}" \
@@ -23,7 +23,7 @@ python get_attn.py \
 echo "========================================="
 echo "  Read data, draw attention map     "
 echo "========================================="
-python draw_attn.py \
+python src/draw_attn.py \
     --result_dir "${RESULT_PATH}" \
     --graph_dir "${GRAPH_PATH}" \
     --original 50 \

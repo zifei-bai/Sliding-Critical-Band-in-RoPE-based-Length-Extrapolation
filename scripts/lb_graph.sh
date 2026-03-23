@@ -34,7 +34,7 @@ for ori in "${ORIGINAL_LEN[@]}";do
                 ;;
         esac
 
-    python draw_graphs.py \
+    python src/draw_graphs.py \
         --result_dir ${RESULT_PATH} \
         --graph_dir ${GRAPH_PATH} \
         --original ${ori} \
@@ -47,7 +47,7 @@ for ori in "${ORIGINAL_LEN[@]}";do
     echo "Figure saved"
 done
 
-python draw_graphs.py \
+python src/draw_graphs.py \
         --result_dir "${RESULT_PATH}" \
         --graph_dir "${GRAPH_PATH}" \
         --original 500 \
