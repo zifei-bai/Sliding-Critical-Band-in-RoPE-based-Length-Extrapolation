@@ -82,6 +82,8 @@ Plotting Sliding Critical Band
 
 ### Pretraining Model From Scratch
 
+Pretraining model from scratch and run the above code to find the Sliding Critical Band
+
 ```
 !bash scripts/train.sh
 ```
