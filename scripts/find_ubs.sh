@@ -21,7 +21,7 @@ for ori_len in "${ORIGINAL_LEN[@]}"; do
         echo "=================================================="
         
        
-        python scripts/eval.py \
+        python src/eval.py \
             --data_dir ${DATA_PATH} \
             --working_dir ${SAVE_PATH} \
             --result_dir ${RESULT_PATH} \
