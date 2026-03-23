@@ -13,6 +13,8 @@ numpy==2.0.2
 matplotlib==3.10.0
 wandb==0.25.1
 tqdm==4.67.3
+transformers==5.0.0
+datasets==4.0.0
 ```
 
 ## Experiments
