@@ -26,35 +26,56 @@ Create `/data/` folder to store the data
 Create `/results/` and `/graphs/` folders to store raw experiment results and figures
 
 ```
-!bash find_ubs.sh
+!bash scripts/find_ubs.sh
 ```
 
 ```
-!bash find_lbs.sh
+!bash scripts/find_lbs.sh
 ```
 
 ### Draw Figure 1 (Visializing $d_\text{upper}$)
 
 ```
-!bash ub_graph.sh
+!bash scripts/ub_graph.sh
 ```
 
 ### Draw Figure 2 (Visializing $d_\text{lower}$)
 
 ```
-!bash lb_graph.sh
+!bash scripts/lb_graph.sh
 ```
 
 ### Draw Figure 3 and 4 (Visializing Critical Band)
 
 ```
-!bash draw_scb.sh
+!bash scripts/draw_scb.sh
 ```
 
 ### Draw Figure 5 (Comparing Attention Pattern of Vanilla RoPE and Interpolating Sliding Critical Band)
 
 ```
-!bash attn.sh
+!bash scripts/attn.sh
+```
+
+### Draw Figure 6 (Real Model's Sliding Critical Band)
+
+```
+!bash scripts/plot_real_scb.sh
+```
+
+```
+!bash scripts/real_ppl.sh
+```
+#### Figure 13 (PPL changes on dimension $d$)
+
+```
+!bash scripts/real_plot.sh
+```
+
+### Pretraining Model From Scratch
+
+```
+!bash scripts/train.sh
 ```
 
 ### Citation
